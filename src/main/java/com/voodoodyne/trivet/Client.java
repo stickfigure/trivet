@@ -66,7 +66,7 @@ public class Client<T> implements InvocationHandler {
 			if (conn.getResponseCode() != 200)
 				throw new IllegalStateException("HTTP response code " + conn.getResponseCode() + " from server at " + endpoint);
 
-			in = new ObjectInputStream(conn.getInputStream());
+			in = new ExceptionSafeObjectInputStream(conn.getInputStream());
 			Response response = (Response)in.readObject();
 
 			if (response.isThrown())
