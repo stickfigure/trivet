@@ -13,7 +13,7 @@ import java.net.URL;
 /**
  * Create a proxy to the server.
  */
-public class Client implements InvocationHandler {
+public class Client<T> implements InvocationHandler {
 
 	/** */
 	public static <T> T create(String endpoint, Class<T> iface) {
@@ -25,15 +25,20 @@ public class Client implements InvocationHandler {
 	}
 
 	/** */
-	@SuppressWarnings("unchecked")
 	public static <T> T create(URL endpoint, Class<T> iface) {
-		return (T)Proxy.newProxyInstance(iface.getClassLoader(), new Class[] { iface }, new Client(endpoint));
+		return create(new Endpoint<>(endpoint, iface));
 	}
 
-	final URL endpoint;
+	/** */
+	@SuppressWarnings("unchecked")
+	public static <T> T create(Endpoint<T> endpoint) {
+		return (T)Proxy.newProxyInstance(endpoint.getIface().getClassLoader(), new Class[] { endpoint.getIface() }, new Client<T>(endpoint));
+	}
+
+	final Endpoint<T> endpoint;
 
 	/** */
-	public Client(URL url) {
+	public Client(Endpoint<T> url) {
 		endpoint = url;
 	}
 
@@ -43,7 +48,7 @@ public class Client implements InvocationHandler {
 		MethodDef def = new MethodDef(method.getDeclaringClass(), method.getName(), method.getParameterTypes());
 		Request request = new Request(def, args);
 
-		HttpURLConnection conn = (HttpURLConnection)endpoint.openConnection();
+		HttpURLConnection conn = (HttpURLConnection)endpoint.getUrl().openConnection();
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
 		try {
@@ -51,6 +56,9 @@ public class Client implements InvocationHandler {
 			conn.setDoInput(true);
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", TrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT);
+
+			// Give client a shot at setup, eg add auth header
+			endpoint.setup(conn);
 
 			out = new ObjectOutputStream(conn.getOutputStream());
 			out.writeObject(request);
