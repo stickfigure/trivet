@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
+import java.util.logging.Logger;
 
 
 /**
@@ -23,6 +24,8 @@ import java.io.ObjectStreamClass;
  */
 public class ExceptionSafeObjectInputStream extends ObjectInputStream {
 
+	private static final Logger log = Logger.getLogger(ExceptionSafeObjectInputStream.class.getName());
+
 	private static final ObjectStreamClass SUBSTITUTE_EXCEPTION = ObjectStreamClass.lookup(ServerSideException.class);
 
 	/** */
@@ -37,9 +40,11 @@ public class ExceptionSafeObjectInputStream extends ObjectInputStream {
 	protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
 		ObjectStreamClass read = super.readClassDescriptor();
 
-		if (read.forClass() == null && read.getName().endsWith("Exception"))
+		if (read.forClass() == null && read.getName().endsWith("Exception")) {
+			log.warning("Tried to deserialize an Exception class that is not present on the client classpath; substituting " + SUBSTITUTE_EXCEPTION.forClass().getSimpleName());
 			return SUBSTITUTE_EXCEPTION;
-		else
+		} else {
 			return read;
+		}
 	}
 }
