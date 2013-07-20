@@ -41,7 +41,7 @@ public class ExceptionSafeObjectInputStream extends ObjectInputStream {
 		ObjectStreamClass read = super.readClassDescriptor();
 
 		if (read.forClass() == null && read.getName().endsWith("Exception")) {
-			log.warning("Tried to deserialize an Exception class that is not present on the client classpath; substituting " + SUBSTITUTE_EXCEPTION.forClass().getSimpleName());
+			log.warning(read.getName() + " is not present on the client classpath; substituting " + SUBSTITUTE_EXCEPTION.forClass().getSimpleName());
 			return SUBSTITUTE_EXCEPTION;
 		} else {
 			return read;
