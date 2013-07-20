@@ -78,10 +78,10 @@ abstract public class TrivetServlet extends HttpServlet {
 	private void checkAllowed(Object service, MethodDef method) {
 		Remote remote = service.getClass().getAnnotation(Remote.class);
 		if (remote == null)
-			throw new IllegalArgumentException("Service implementation is missing annotation @" + Remote.class.getName());
+			throw new IllegalArgumentException("Cannot invoke " + method + " because " + service.getClass().getName() + " does not have @" + Remote.class.getName());
 
 		if (remote.value().length > 0 && !contains(remote.value(), method.getClazz()))
-			throw new IllegalArgumentException("Service @Remote annotation does not allow " + method.getClazz().getName());
+			throw new IllegalArgumentException("@Remote annotation on " + service.getClass().getName() + " does not allow " + method);
 	}
 
 	/** */

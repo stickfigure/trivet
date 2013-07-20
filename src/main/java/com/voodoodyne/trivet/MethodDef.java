@@ -41,4 +41,9 @@ public class MethodDef implements Serializable {
 	public Method getMethod() throws SecurityException, NoSuchMethodException {
 		return clazz.getMethod(name, parameterTypes);
 	}
+
+	@Override
+	public String toString() {
+		return clazz.getName() + "#" + name;
+	}
 }
