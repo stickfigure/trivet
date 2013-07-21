@@ -33,7 +33,7 @@ Create an interface class:
 
 Create an implementation class, adding @Remote so that we know it's ok to invoke remotely:
 
-    @Remote    // or @Remote(Hello.class) if you wanted to exclude other interfaces
+    @Remote    // or @Remote(Hello.class) if there are other interfaces to exclude
     public class HelloImpl implements Hello {
         @Override
         public String hi(String name) {
