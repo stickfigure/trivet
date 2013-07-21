@@ -62,13 +62,12 @@ Here's the Guice way of binding the servlet and the interface:
                 serve("/rpc").with(GuiceTrivetServlet.class);
             }
         }
-        public static class MyModule extends AbstractModule {
+        static class MyModule extends AbstractModule {
             @Override
             protected void configure() {
                 bind(Hello.class).to(HelloImpl.class);
             }
         }
-
         protected Injector getInjector() {
             return Guice.createInjector(new MyServletModule(), new MyModule());
         }
