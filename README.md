@@ -31,10 +31,9 @@ Create an interface class:
         String hi(String name);
     }
 
-Create an implementation class, adding @Remote so that we know it's ok to invoke remotely. You can optionally
-specify a list of specific interfaces that are allowed:
+Create an implementation class, adding @Remote so that we know it's ok to invoke remotely:
 
-    @Remote
+    @Remote    // or @Remote(Hello.class) if you wanted to exclude other interfaces
     public class HelloImpl implements Hello {
         @Override
         public String hi(String name) {
@@ -69,6 +68,10 @@ Here's the Guice way of binding the servlet and the interface:
                 bind(Hello.class).to(HelloImpl.class);
             }
         }
+
+        protected Injector getInjector() {
+            return Guice.createInjector(new MyServletModule(), new MyModule());
+        }
     }
 
 Finally, package up Hello.class into your client jar and in your client call this:
@@ -90,7 +93,7 @@ and deserializes that normally. The stacktrace, cause chain, and message are pre
 class and any custom fields are lost. This is not ideal but you can usually figure out what's going on from the information
 provided, and it's better than getting an opaque ClassNotFoundException.
 
-## Why does the world need yet another RPC protocol?
+## Yet another RPC protocol?
 
 Serialization is convenient; it's well-understood, flexible, integrated with the language (respects transient and final),
 and "fast enough". RMI is complicated, invasive (RemoteException), doesn't work with dependency injection frameworks,
