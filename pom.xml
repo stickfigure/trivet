@@ -3,16 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<gae.version>1.7.6</gae.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<groupId>com.voodoodyne.trivet</groupId>
 	<artifactId>trivet</artifactId>
-	<version>0.1</version>
+	<version>1.0</version>
 
 	<name>Trivet</name>
-	<description>A trivial remoting protocol based on Java serialization.</description>
+	<description>A trivial remoting protocol based on Java serialization and HTTP.</description>
 	<packaging>jar</packaging>
 	<url>https://github.com/stickfigure/trivet/</url>
 	<scm>
@@ -83,25 +82,11 @@
 	</build>
 
 	<dependencies>
-		<!-- Testing -->
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>6.8</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- Runtime -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.4</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

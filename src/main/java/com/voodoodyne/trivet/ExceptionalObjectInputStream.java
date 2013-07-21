@@ -22,14 +22,14 @@ import java.util.logging.Logger;
  * downside of destroying the name of the original exception class. We log this, but hopefully
  * you can figure out the exception from the stacktrace and the message.</p>
  */
-public class ExceptionSafeObjectInputStream extends ObjectInputStream {
+public class ExceptionalObjectInputStream extends ObjectInputStream {
 
-	private static final Logger log = Logger.getLogger(ExceptionSafeObjectInputStream.class.getName());
+	private static final Logger log = Logger.getLogger(ExceptionalObjectInputStream.class.getName());
 
 	private static final ObjectStreamClass SUBSTITUTE_EXCEPTION = ObjectStreamClass.lookup(ServerSideException.class);
 
 	/** */
-	public ExceptionSafeObjectInputStream(InputStream in) throws IOException {
+	public ExceptionalObjectInputStream(InputStream in) throws IOException {
 		super(in);
 	}
 
