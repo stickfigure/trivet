@@ -1,7 +1,7 @@
 # Trivial Java HTTP-RPC
 
 This is the simplest possible Java RPC protocol, utilizing serialization and HTTP to make calls on remote objects. It
-dependency injection to bind the interface to a concrete implementation on the server; you can use Guice,
+uses dependency injection to bind the interface to a concrete implementation on the server; you can use Guice,
 CDI, or even just wire it up by hand.
 
 The implementation is just 9 source files and 250 lines of code, with no dependency jars. A dynamic proxy serializes
