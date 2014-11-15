@@ -1,15 +1,14 @@
 package com.voodoodyne.trivet;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Subclasses must implement the ability to get instances of the specified interface.
@@ -30,7 +29,7 @@ abstract public class TrivetServlet extends HttpServlet {
 
 		try {
 			Request request = (Request)new ObjectInputStream(req.getInputStream()).readObject();
-			Response response = invokeWithCatch(request);
+			Response response = invoke(request);
 
 			resp.setContentType(APPLICATION_JAVA_SERIALIZED_OBJECT);
 			ObjectOutputStream out = new ObjectOutputStream(resp.getOutputStream());
@@ -43,10 +42,14 @@ abstract public class TrivetServlet extends HttpServlet {
 
 	}
 
-	/** Execute a request */
-	private Response invokeWithCatch(Request request) {
+	/**
+	 * Execute a request and turn it into a response. If you would like, for example, to hide exceptions
+	 * from the client (say, in a production environment and your clients are untrusted Androids), you can
+	 * override this method and replace the Response with a generic exception.
+	 */
+	protected Response invoke(Request request) {
 		try {
-			Object result = invoke(request);
+			Object result = invokeDirect(request);
 			return new Response(result, null);
 		} catch (InvocationTargetException ex) {
 			return new Response(null, ex.getCause());
@@ -58,7 +61,7 @@ abstract public class TrivetServlet extends HttpServlet {
 	/**
 	 * Execute a request and return the result, possibly throwing nasty exceptions
 	 */
-	private Object invoke(Request request) throws SecurityException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+	private Object invokeDirect(Request request) throws SecurityException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 		// This is a quick sanity check; we don't want to let remotes instantiate any random class on the server
 		Class<?> iface = request.getMethod().getClazz();
 		if (!iface.isInterface())
