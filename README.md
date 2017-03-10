@@ -15,11 +15,13 @@ The official repository is (https://github.com/stickfigure/trivet)
 
 This plugin is available in Maven Central:
 
-	<dependency>
-		<groupId>com.voodoodyne.trivet</groupId>
-		<artifactId>trivet</artifactId>
-		<version>1.0</version>
-	</dependency>
+```xml
+<dependency>
+	<groupId>com.voodoodyne.trivet</groupId>
+	<artifactId>trivet</artifactId>
+	<version>1.0</version>
+</dependency>
+```
 
 It can be downloaded directly from [http://search.maven.org/]
 
@@ -27,56 +29,68 @@ It can be downloaded directly from [http://search.maven.org/]
 
 Create an interface class:
 
-    public interface Hello {
-        String hi(String name);
-    }
+```java
+public interface Hello {
+	String hi(String name);
+}
+```
 
 Create an implementation class, adding @Remote so that we know it's ok to invoke remotely:
 
-    @Remote    // or @Remote(Hello.class) if there are other interfaces to exclude
-    public class HelloImpl implements Hello {
-        @Override
-        public String hi(String name) {
-            return "Hello, " + name;
-        }
-    }
+```java
+@Remote    // or @Remote(Hello.class) if there are other interfaces to exclude
+public class HelloImpl implements Hello {
+	@Override
+	public String hi(String name) {
+		return "Hello, " + name;
+	}
+}
+```
 
-Derive your own invoker servlet that hooks up your dependency injection system; this example uses Guice:
+That's really all you need to create for each service. The rest is boilerplate setup. Derive your own invoker servlet that hooks up your dependency injection system; this example uses Guice:
 
-    @Singleton
-    public class GuiceTrivetServlet extends TrivetServlet {
-        @Inject Injector injector;
+```java
+@Singleton
+public class GuiceTrivetServlet extends TrivetServlet {
+	@Inject Injector injector;
 
-        @Override
-        public Object getInstance(Class<?> clazz) {
-            return injector.getInstance(clazz);
-        }
-    }
+	@Override
+	public Object getInstance(Class<?> clazz) {
+		return injector.getInstance(clazz);
+	}
+}
+```
 
 Here's the Guice way of binding the servlet and the interface:
 
-    public class GuiceConfig extends GuiceServletContextListener {
-        static class MyServletModule extends ServletModule {
-            @Override
-            protected void configureServlets() {
-                serve("/rpc").with(GuiceTrivetServlet.class);
-            }
-        }
-        static class MyModule extends AbstractModule {
-            @Override
-            protected void configure() {
-                bind(Hello.class).to(HelloImpl.class);
-            }
-        }
-        protected Injector getInjector() {
-            return Guice.createInjector(new MyServletModule(), new MyModule());
-        }
-    }
+```java
+public class GuiceConfig extends GuiceServletContextListener {
+	static class MyServletModule extends ServletModule {
+		@Override
+		protected void configureServlets() {
+			serve("/rpc").with(GuiceTrivetServlet.class);
+		}
+	}
+
+	static class MyModule extends AbstractModule {
+		@Override
+		protected void configure() {
+			bind(Hello.class).to(HelloImpl.class);
+		}
+	}
+
+	protected Injector getInjector() {
+		return Guice.createInjector(new MyServletModule(), new MyModule());
+	}
+}
+```
 
 Finally, package up Hello.class into your client jar and in your client call this:
 
-    Hello hello = Client.create("http://example.com/rpc", Hello.class);
-    hello.hi();
+```java
+Hello hello = Client.create("http://example.com/rpc", Hello.class);
+hello.hi();
+```
 
 The proxy is thread-safe and uses HttpURLConnection.
 
