@@ -7,6 +7,8 @@ CDI, or even just wire it up by hand.
 The implementation is just 9 source files and 250 lines of code, with no dependency jars. A dynamic proxy serializes
 your call into a Request object and posts that to a servlet which sends back a serialized Response. Easy!
 
+v1.0 uses `javax.*`, v1.1+ uses `jakarta.*`
+
 ## Source code
 
 The official repository is (https://github.com/stickfigure/trivet)
@@ -19,11 +21,11 @@ This plugin is available in Maven Central:
 <dependency>
 	<groupId>com.voodoodyne.trivet</groupId>
 	<artifactId>trivet</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 </dependency>
 ```
 
-It can be downloaded directly from [http://search.maven.org/]
+It can be downloaded directly from [https://central.sonatype.com/]
 
 ## Usage
 
