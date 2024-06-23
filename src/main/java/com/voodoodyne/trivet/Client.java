@@ -16,7 +16,7 @@ import java.net.URL;
 public class Client<T> implements InvocationHandler {
 
 	/** */
-	public static <T> T create(String endpoint, Class<T> iface) {
+	public static <T> T create(final String endpoint, final Class<T> iface) {
 		try {
 			return create(new URL(endpoint), iface);
 		} catch (MalformedURLException e) {
@@ -25,30 +25,30 @@ public class Client<T> implements InvocationHandler {
 	}
 
 	/** */
-	public static <T> T create(URL endpoint, Class<T> iface) {
+	public static <T> T create(final URL endpoint, final Class<T> iface) {
 		return create(new Endpoint<>(endpoint, iface));
 	}
 
 	/** */
 	@SuppressWarnings("unchecked")
-	public static <T> T create(Endpoint<T> endpoint) {
-		return (T)Proxy.newProxyInstance(endpoint.getIface().getClassLoader(), new Class[] { endpoint.getIface() }, new Client<T>(endpoint));
+	public static <T> T create(final Endpoint<T> endpoint) {
+		return (T)Proxy.newProxyInstance(endpoint.getIface().getClassLoader(), new Class[] { endpoint.getIface() }, new Client<>(endpoint));
 	}
 
-	final Endpoint<T> endpoint;
+	private final Endpoint<T> endpoint;
 
 	/** */
-	public Client(Endpoint<T> url) {
+	public Client(final Endpoint<T> url) {
 		endpoint = url;
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
-		MethodDef def = new MethodDef(method.getDeclaringClass(), method.getName(), method.getParameterTypes());
-		Request request = new Request(def, args);
+		final MethodDef def = new MethodDef(method.getDeclaringClass(), method.getName(), method.getParameterTypes());
+		final Request request = new Request(def, args);
 
-		HttpURLConnection conn = (HttpURLConnection)endpoint.getUrl().openConnection();
+		final HttpURLConnection conn = (HttpURLConnection)endpoint.getUrl().openConnection();
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
 		try {
@@ -67,12 +67,12 @@ public class Client<T> implements InvocationHandler {
 				throw new IllegalStateException("HTTP response code " + conn.getResponseCode() + " from server at " + endpoint);
 
 			in = new ExceptionalObjectInputStream(conn.getInputStream());
-			Response response = (Response)in.readObject();
+			final Response response = (Response)in.readObject();
 
 			if (response.isThrown())
-				throw response.getThrowable();
+				throw response.throwable();
 			else
-				return response.getResult();
+				return response.result();
 		} finally {
 			if (out != null)
 				out.close();

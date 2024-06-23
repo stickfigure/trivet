@@ -9,10 +9,10 @@ import java.net.URL;
  */
 public class Endpoint<T> {
 
-	final URL url;
-	final Class<T> iface;
+	private final URL url;
+	private final Class<T> iface;
 
-	public Endpoint(URL url, Class<T> iface) {
+	public Endpoint(final URL url, final Class<T> iface) {
 		this.url = url;
 		this.iface = iface;
 	}

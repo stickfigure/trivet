@@ -5,40 +5,21 @@ import java.lang.reflect.Method;
 
 /**
  * A serializable definition of a Method; the java Method itself is not serializable.
+ *
+ * @param clazz Class on which the method is found
+ * @param name Name of the method
+ * @param parameterTypes Type params to the method
  */
-public class MethodDef implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	private final Class<?> clazz;
-	private final String name;
-	private final Class<?>[] parameterTypes;
-
-	/** */
-	public MethodDef(Class<?> clazz, String name, Class<?>[] parameterTypes) {
-		this.clazz = clazz;
-		this.name = name;
-		this.parameterTypes = parameterTypes;
-	}
-
-	/** Class on which the method is found */
-	public Class<?> getClazz() {
-		return clazz;
-	}
-
-	/** Name of the method */
-	public String getName() {
-		return name;
-	}
-
-	/** Type params to the method */
-	public Class<?>[] getParameterTypes() {
-		return parameterTypes;
-	}
+public record MethodDef(
+		Class<?> clazz,
+		String name,
+		Class<?>[] parameterTypes
+) implements Serializable {
 
 	/**
+	 * Get the Method to invoke
 	 */
-	public Method getMethod() throws SecurityException, NoSuchMethodException {
+	public Method method() throws SecurityException, NoSuchMethodException {
 		return clazz.getMethod(name, parameterTypes);
 	}
 

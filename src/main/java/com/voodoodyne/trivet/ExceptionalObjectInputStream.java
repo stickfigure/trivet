@@ -29,7 +29,7 @@ public class ExceptionalObjectInputStream extends ObjectInputStream {
 	private static final ObjectStreamClass SUBSTITUTE_EXCEPTION = ObjectStreamClass.lookup(ServerSideException.class);
 
 	/** */
-	public ExceptionalObjectInputStream(InputStream in) throws IOException {
+	public ExceptionalObjectInputStream(final InputStream in) throws IOException {
 		super(in);
 	}
 
@@ -38,7 +38,7 @@ public class ExceptionalObjectInputStream extends ObjectInputStream {
 	 */
 	@Override
 	protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
-		ObjectStreamClass read = super.readClassDescriptor();
+		final ObjectStreamClass read = super.readClassDescriptor();
 
 		if (read.forClass() == null && read.getName().endsWith("Exception")) {
 			log.warning(read.getName() + " is not present on the client classpath; substituting " + SUBSTITUTE_EXCEPTION.forClass().getSimpleName());

@@ -1,6 +1,7 @@
 package com.voodoodyne.trivet;
 
 
+import java.io.Serial;
 
 /**
  * This exception class is used as a replacement for sever-side exceptions that do not exist on the client.
@@ -8,6 +9,7 @@ package com.voodoodyne.trivet;
  * it. It gets logged on the client.
  */
 public class ServerSideException extends RuntimeException {
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	/** You cannot instantiate these; they are deserialized by the ExceptionSafeObjectInputStream */
