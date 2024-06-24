@@ -4,6 +4,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,6 +18,7 @@ import java.lang.reflect.Method;
  * Subclasses must implement the ability to get instances of the specified interface.
  */
 abstract public class TrivetServlet extends HttpServlet {
+	private static final Logger log = LoggerFactory.getLogger(TrivetServlet.class);
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -32,7 +35,10 @@ abstract public class TrivetServlet extends HttpServlet {
 
 		try {
 			final Request request = (Request)new ObjectInputStream(req.getInputStream()).readObject();
+			log.debug("Invoking request: {}", request);
+
 			final Response response = invoke(request);
+			log.debug("Returning response: {}", response);
 
 			resp.setContentType(APPLICATION_JAVA_SERIALIZED_OBJECT);
 			final ObjectOutputStream out = new ObjectOutputStream(resp.getOutputStream());

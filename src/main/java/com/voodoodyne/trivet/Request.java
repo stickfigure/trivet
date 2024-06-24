@@ -1,6 +1,7 @@
 package com.voodoodyne.trivet;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * The serialized request that is posted to the servlet.
@@ -12,4 +13,8 @@ public record Request(
 		MethodDef method,
 		Object[] args
 ) implements Serializable {
+	@Override
+	public String toString() {
+		return "Request[method=" + method + ", args=" + Arrays.toString(args) + ']';
+	}
 }
