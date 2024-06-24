@@ -7,7 +7,9 @@ CDI, or even just wire it up by hand.
 The implementation is just 9 source files and 250 lines of code, with no dependency jars. A dynamic proxy serializes
 your call into a Request object and posts that to a servlet which sends back a serialized Response. Easy!
 
-v1.0 uses `javax.*`, v1.1+ uses `jakarta.*`
+ * v1.0 uses `javax.*`
+ * v1.1+ uses `jakarta.*`
+ * v2.0+ changes the serialization format, using java `record`. The client is now based on `java.net.http`.  
 
 ## Source code
 
@@ -94,7 +96,21 @@ Hello hello = Client.create("http://example.com/rpc", Hello.class);
 hello.hi();
 ```
 
-The proxy is thread-safe and uses HttpURLConnection.
+The proxy is thread-safe and uses `java.net.http`. You can customize the behavior (add auth, proxies, etc) by passing
+in a custom endpoint:
+
+```java
+Endpoint<Hello> endpoint = new Endpoint<Hello>(
+		new URI("http://example.com/rpc"),
+        Hello.class,
+        requestBuilder -> requestBuilder.header("Authentication", someBearerToken)
+);
+Hello hello = Client.create(endpoint);
+hello.hi();
+```
+
+See [Endpoint.java](https://github.com/stickfigure/trivet/blob/master/src/main/java/com/voodoodyne/trivet/Endpoint.java)
+for more options.
 
 ## Exceptions
 
