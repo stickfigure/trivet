@@ -1,28 +1,27 @@
 package com.voodoodyne.trivet;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.util.function.Consumer;
 
 
 /**
  * Information about the endpoint we connect to
  */
-public class Endpoint<T> {
-
-	private final URL url;
-	private final Class<T> iface;
-
-	public Endpoint(final URL url, final Class<T> iface) {
-		this.url = url;
-		this.iface = iface;
+public record Endpoint<T>(
+		URI uri,
+		Class<T> iface,
+		Consumer<HttpRequest.Builder> requestMunger,
+		Consumer<HttpClient.Builder> clientMunger
+) {
+	/** Convenience method */
+	public Endpoint(final URI uri, final Class<T> iface) {
+		this(uri, iface, req -> {}, cli -> {});
 	}
 
-	public URL getUrl() { return url; }
-	public Class<T> getIface() { return iface; }
-
-	/**
-	 * Override this to set http headers like basic auth. This is called for each
-	 * method invocation.
-	 */
-	public void setup(HttpURLConnection conn) {}
+	/** Convenience method */
+	public Endpoint(final URI uri, final Class<T> iface, final Consumer<HttpRequest.Builder> requestMunger) {
+		this(uri, iface, requestMunger, cli -> {});
+	}
 }

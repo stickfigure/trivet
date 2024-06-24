@@ -1,13 +1,19 @@
 package com.voodoodyne.trivet;
 
-import java.io.ObjectInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 
 
 /**
@@ -18,67 +24,69 @@ public class Client<T> implements InvocationHandler {
 	/** */
 	public static <T> T create(final String endpoint, final Class<T> iface) {
 		try {
-			return create(new URL(endpoint), iface);
-		} catch (MalformedURLException e) {
+			return create(new URI(endpoint), iface);
+		} catch (final URISyntaxException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 
 	/** */
-	public static <T> T create(final URL endpoint, final Class<T> iface) {
+	public static <T> T create(final URI endpoint, final Class<T> iface) {
 		return create(new Endpoint<>(endpoint, iface));
 	}
 
 	/** */
 	@SuppressWarnings("unchecked")
 	public static <T> T create(final Endpoint<T> endpoint) {
-		return (T)Proxy.newProxyInstance(endpoint.getIface().getClassLoader(), new Class[] { endpoint.getIface() }, new Client<>(endpoint));
+		return (T)Proxy.newProxyInstance(endpoint.iface().getClassLoader(), new Class[] { endpoint.iface() }, new Client<>(endpoint));
 	}
 
 	private final Endpoint<T> endpoint;
 
 	/** */
-	public Client(final Endpoint<T> url) {
-		endpoint = url;
+	public Client(final Endpoint<T> endpoint) {
+		this.endpoint = endpoint;
 	}
 
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
 		final MethodDef def = new MethodDef(method.getDeclaringClass(), method.getName(), method.getParameterTypes());
-		final Request request = new Request(def, args);
+		final Request req = new Request(def, args);
 
-		final HttpURLConnection conn = (HttpURLConnection)endpoint.getUrl().openConnection();
-		ObjectOutputStream out = null;
-		ObjectInputStream in = null;
-		try {
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", TrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT);
+		final byte[] reqBytes = serializeRequest(req);
 
-			// Give client a shot at setup, eg add auth header
-			endpoint.setup(conn);
+		final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(endpoint.uri())
+				.header("Content-Type", TrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT)
+				.POST(BodyPublishers.ofByteArray(reqBytes));
+		endpoint.requestMunger().accept(httpRequestBuilder);
+		final HttpRequest httpRequest = httpRequestBuilder.build();
 
-			out = new ObjectOutputStream(conn.getOutputStream());
-			out.writeObject(request);
+		final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder();
+		endpoint.clientMunger().accept(httpClientBuilder);
+		final HttpClient httpClient = httpClientBuilder.build();
 
-			if (conn.getResponseCode() != 200)
-				throw new IllegalStateException("HTTP response code " + conn.getResponseCode() + " from server at " + endpoint);
+		final HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest, BodyHandlers.ofInputStream());
 
-			in = new ExceptionalObjectInputStream(conn.getInputStream());
-			final Response response = (Response)in.readObject();
-
-			if (response.isThrown())
-				throw response.throwable();
-			else
-				return response.result();
-		} finally {
-			if (out != null)
-				out.close();
-
-			if (in != null)
-				in.close();
+		if (httpResponse.statusCode() != 200) {
+			throw new IllegalStateException("HTTP response code " + httpResponse.statusCode() + " from server at " + endpoint);
 		}
+
+		final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(httpResponse.body());
+		final Response response = (Response)inStream.readObject();
+
+		if (response.isThrown())
+			throw response.throwable();
+		else
+			return response.result();
+	}
+
+	private byte[] serializeRequest(final Request req) throws IOException {
+		final ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+
+		final ObjectOutputStream objectStream = new ObjectOutputStream(byteArrayStream);
+		objectStream.writeObject(req);
+
+		return byteArrayStream.toByteArray();
 	}
 }
