@@ -21,9 +21,9 @@ This plugin is available in Maven Central:
 
 ```xml
 <dependency>
-	<groupId>com.voodoodyne.trivet</groupId>
-	<artifactId>trivet</artifactId>
-	<version>2.0</version>
+    <groupId>com.voodoodyne.trivet</groupId>
+    <artifactId>trivet</artifactId>
+    <version>2.0</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ Create an interface class:
 
 ```java
 public interface Hello {
-	String hi(String name);
+    String hi(String name);
 }
 ```
 
@@ -44,10 +44,10 @@ Create an implementation class, adding @Remote so that we know it's ok to invoke
 ```java
 @Remote    // or @Remote(Hello.class) if there are other interfaces to exclude
 public class HelloImpl implements Hello {
-	@Override
-	public String hi(String name) {
-		return "Hello, " + name;
-	}
+    @Override
+    public String hi(String name) {
+        return "Hello, " + name;
+    }
 }
 ```
 
@@ -56,12 +56,12 @@ That's really all you need to create for each service. The rest is boilerplate s
 ```java
 @Singleton
 public class GuiceTrivetServlet extends TrivetServlet {
-	@Inject Injector injector;
+    @Inject Injector injector;
 
-	@Override
-	public Object getInstance(Class<?> clazz) {
-		return injector.getInstance(clazz);
-	}
+    @Override
+    public Object getInstance(Class<?> clazz) {
+        return injector.getInstance(clazz);
+    }
 }
 ```
 
@@ -69,23 +69,23 @@ Here's the Guice way of binding the servlet and the interface:
 
 ```java
 public class GuiceConfig extends GuiceServletContextListener {
-	static class MyServletModule extends ServletModule {
-		@Override
-		protected void configureServlets() {
-			serve("/rpc").with(GuiceTrivetServlet.class);
-		}
-	}
+    static class MyServletModule extends ServletModule {
+        @Override
+        protected void configureServlets() {
+            serve("/rpc").with(GuiceTrivetServlet.class);
+        }
+    }
 
-	static class MyModule extends AbstractModule {
-		@Override
-		protected void configure() {
-			bind(Hello.class).to(HelloImpl.class);
-		}
-	}
+    static class MyModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(Hello.class).to(HelloImpl.class);
+        }
+    }
 
-	protected Injector getInjector() {
-		return Guice.createInjector(new MyServletModule(), new MyModule());
-	}
+    protected Injector getInjector() {
+        return Guice.createInjector(new MyServletModule(), new MyModule());
+    }
 }
 ```
 
@@ -101,7 +101,7 @@ in a custom endpoint:
 
 ```java
 Endpoint<Hello> endpoint = new Endpoint<Hello>(
-		new URI("http://example.com/rpc"),
+        new URI("http://example.com/rpc"),
         Hello.class,
         requestBuilder -> requestBuilder.header("Authentication", someBearerToken)
 );
