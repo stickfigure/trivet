@@ -17,4 +17,11 @@ public record Request(
 	public String toString() {
 		return "Request[method=" + method + ", args=" + Arrays.toString(args) + ']';
 	}
+
+	public Request withArgs(final Object[] args) {
+		if (this.args == args)
+			return this;
+
+		return new Request(method, args);
+	}
 }

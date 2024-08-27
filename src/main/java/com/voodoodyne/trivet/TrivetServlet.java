@@ -34,18 +34,20 @@ abstract public class TrivetServlet extends HttpServlet {
 			throw new ServletException("Content-Type must be " + APPLICATION_JAVA_SERIALIZED_OBJECT);
 
 		try {
-			final Request request = (Request)new ObjectInputStream(req.getInputStream()).readObject();
+			final Request requestWithoutOptionals = (Request)new ObjectInputStream(req.getInputStream()).readObject();
+			final Request request = OptionalHack.restore(requestWithoutOptionals);
 			log.debug("Invoking request: {}", request);
 
-			final Response response = invoke(request);
-			log.debug("Returning response: {}", response);
+			final Response responseWithOptionals = invoke(request);
+			log.debug("Returning response: {}", responseWithOptionals);
+			final Response response = OptionalHack.strip(responseWithOptionals, request.method().method());
 
 			resp.setContentType(APPLICATION_JAVA_SERIALIZED_OBJECT);
 			final ObjectOutputStream out = new ObjectOutputStream(resp.getOutputStream());
 			out.writeObject(response);
 			out.close();
 
-		} catch (final ClassNotFoundException ex) {
+		} catch (final ClassNotFoundException | NoSuchMethodException ex) {
 			throw new ServletException(ex);
 		}
 
@@ -81,6 +83,7 @@ abstract public class TrivetServlet extends HttpServlet {
 		checkAllowed(service, request.method());
 
 		final Method method = request.method().method();
+
 		return method.invoke(service, request.args());
 	}
 

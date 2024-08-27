@@ -41,10 +41,14 @@ public class ExceptionalObjectInputStream extends ObjectInputStream {
 		final ObjectStreamClass read = super.readClassDescriptor();
 
 		if (read.forClass() == null && read.getName().endsWith("Exception")) {
-			log.warning(read.getName() + " is not present on the client classpath; substituting " + SUBSTITUTE_EXCEPTION.forClass().getSimpleName());
-			return SUBSTITUTE_EXCEPTION;
-		} else {
-			return read;
+			try {
+				Class.forName(read.getName());
+			} catch (final Exception e) {
+				log.warning(read.getName() + " is not present on the client classpath; substituting " + SUBSTITUTE_EXCEPTION.forClass().getSimpleName());
+				return SUBSTITUTE_EXCEPTION;
+			}
 		}
+
+		return read;
 	}
 }

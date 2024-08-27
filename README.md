@@ -124,6 +124,24 @@ and deserializes that normally. The stacktrace, cause chain, and message are pre
 class and any custom fields are lost. This is not ideal but you can usually figure out what's going on from the information
 provided, and it's better than getting an opaque ClassNotFoundException.
 
+## `Optional`s
+
+`java.util.Optional` is incredibly useful as a return type and parameter type for Java methods, but isn't Serializable.
+Trivet hacks around this by unwrapping/wrapping them on the wire. This example from the test suite works:
+
+```java
+public interface Hello {
+    Optional<String> hiMaybe(final Optional<String> name);
+}
+```
+
+Some caveats:
+ * You can use `Optional<?>` as a return type or a method parameter type.
+ * You can't use `Optional<?>` inside serialized classes. Only parameters and return types are special-cased.
+ * You can't pass `null` for an `Optional<?>` parameter. Use `Optional.empty()`.
+ * You can't return `null` for an `Optional<?>` return type. Use `Optional.empty()`.
+ * The special casing is via static analysis. If you have a parameter of type `Object` and you pass in an `Optional<?>` value, you will get a `NotSerializableException`. 
+
 ## Yet another RPC protocol?
 
 Serialization is convenient; it's well-understood, flexible, integrated with the language (respects transient and final),

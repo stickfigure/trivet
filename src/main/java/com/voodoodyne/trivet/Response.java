@@ -18,4 +18,11 @@ public record Response(
 	public boolean isThrown() {
 		return throwable != null;
 	}
+
+	public Response withResult(final Object result) {
+		if (this.result == result)
+			return this;
+
+		return new Response(result, throwable);
+	}
 }

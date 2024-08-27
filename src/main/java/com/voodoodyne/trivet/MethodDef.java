@@ -16,6 +16,10 @@ public record MethodDef(
 		Class<?>[] parameterTypes
 ) implements Serializable {
 
+	public MethodDef(final Method method) {
+		this(method.getDeclaringClass(), method.getName(), method.getParameterTypes());
+	}
+
 	/**
 	 * Get the Method to invoke
 	 */

@@ -51,8 +51,10 @@ public class Client<T> implements InvocationHandler {
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
-		final MethodDef def = new MethodDef(method.getDeclaringClass(), method.getName(), method.getParameterTypes());
-		final Request req = new Request(def, args);
+		final MethodDef def = new MethodDef(method);
+
+		final Request reqWithOptionals = new Request(def, args);
+		final Request req = OptionalHack.strip(reqWithOptionals);
 
 		final byte[] reqBytes = serializeRequest(req);
 
@@ -73,12 +75,14 @@ public class Client<T> implements InvocationHandler {
 		}
 
 		final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(httpResponse.body());
-		final Response response = (Response)inStream.readObject();
+		final Response responseWithoutOptionals = (Response)inStream.readObject();
+		final Response response = OptionalHack.restore(responseWithoutOptionals, method);
 
-		if (response.isThrown())
+		if (response.isThrown()) {
 			throw response.throwable();
-		else
+		} else {
 			return response.result();
+		}
 	}
 
 	private byte[] serializeRequest(final Request req) throws IOException {
