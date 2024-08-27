@@ -23,7 +23,7 @@ This plugin is available in Maven Central:
 <dependency>
     <groupId>com.voodoodyne.trivet</groupId>
     <artifactId>trivet</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
 </dependency>
 ```
 
