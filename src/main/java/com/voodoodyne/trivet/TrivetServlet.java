@@ -80,7 +80,7 @@ abstract public class TrivetServlet extends HttpServlet {
 
 		final Object service = getInstance(iface);
 
-		checkAllowed(service, request.method());
+		checkAllowed(service.getClass(), request.method());
 
 		final Method method = request.method().method();
 
@@ -88,15 +88,18 @@ abstract public class TrivetServlet extends HttpServlet {
 	}
 
 	/**
+	 * This is overridable to allow customization of the rules. For example, the service class might be a Spring
+	 * proxy that needs to be unwrapped in a Spring-specific manner.
+	 *
 	 * @throws IllegalArgumentException if the service is not properly annotated to allow the interface to be called remotely
 	 */
-	private void checkAllowed(final Object service, final MethodDef method) {
-		final Remote remote = service.getClass().getAnnotation(Remote.class);
+	protected void checkAllowed(final Class<?> serviceClass, final MethodDef method) {
+		final Remote remote = serviceClass.getAnnotation(Remote.class);
 		if (remote == null)
-			throw new IllegalArgumentException("Cannot invoke " + method + " because " + service.getClass().getName() + " does not have @" + Remote.class.getName());
+			throw new IllegalArgumentException("Cannot invoke " + method + " because " + serviceClass.getName() + " does not have @" + Remote.class.getName());
 
 		if (remote.value().length > 0 && !contains(remote.value(), method.clazz()))
-			throw new IllegalArgumentException("@Remote annotation on " + service.getClass().getName() + " does not allow " + method);
+			throw new IllegalArgumentException("@Remote annotation on " + serviceClass.getName() + " does not allow " + method);
 	}
 
 	/** */
