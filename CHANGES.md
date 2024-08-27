@@ -1,6 +1,6 @@
 # Release Notes
 
-## v2.1.1
+## v2.1.2
 2024-08-27
 * Provide a hook to allow Spring to unwrap proxies when checking remote permission.
 
