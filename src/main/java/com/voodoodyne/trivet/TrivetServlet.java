@@ -88,12 +88,22 @@ abstract public class TrivetServlet extends HttpServlet {
 	}
 
 	/**
-	 * This is overridable to allow customization of the rules. For example, the service class might be a Spring
-	 * proxy that needs to be unwrapped in a Spring-specific manner.
+	 * This is overridable to allow customization of the rules. For example, the service might be a Spring
+	 * proxy that needs to be unwrapped in a Spring-specific manner. The default behavior is to call
+	 * {@code checkAllowedClass(service.getClass(), method)}.
 	 *
 	 * @throws IllegalArgumentException if the service is not properly annotated to allow the interface to be called remotely
 	 */
-	protected void checkAllowed(final Class<?> serviceClass, final MethodDef method) {
+	protected void checkAllowed(final Object service, final MethodDef method) {
+		checkAllowedClass(service.getClass(), method);
+	}
+
+	/**
+	 * This is overridable to allow customization of the rules.
+	 *
+	 * @throws IllegalArgumentException if the service is not properly annotated to allow the interface to be called remotely
+	 */
+	protected void checkAllowedClass(final Class<?> serviceClass, final MethodDef method) {
 		final Remote remote = serviceClass.getAnnotation(Remote.class);
 		if (remote == null)
 			throw new IllegalArgumentException("Cannot invoke " + method + " because " + serviceClass.getName() + " does not have @" + Remote.class.getName());
