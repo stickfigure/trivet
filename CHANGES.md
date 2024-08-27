@@ -1,5 +1,9 @@
 # Release Notes
 
+## v2.1.1
+2024-08-27
+* Provide a hook to allow Spring to unwrap proxies when checking remote permission.
+
 ## v2.1
 2024-08-26
 * Enabled `Optional<?>` as return values and parameters
