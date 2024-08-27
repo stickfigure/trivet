@@ -80,7 +80,7 @@ abstract public class TrivetServlet extends HttpServlet {
 
 		final Object service = getInstance(iface);
 
-		checkAllowed(service.getClass(), request.method());
+		checkAllowed(service, request.method());
 
 		final Method method = request.method().method();
 
