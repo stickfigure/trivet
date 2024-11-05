@@ -1,5 +1,10 @@
 # Release Notes
 
+## v2.2
+2024-11-05
+* Wrap server side exceptions in `RemoteException`. Otherwise you miss out on the entire client side stacktrace.
+* Rename `ServerSideException` to `MysteryException`
+
 ## v2.1.2
 2024-08-27
 * Provide a hook to allow Spring to unwrap proxies when checking remote permission.
