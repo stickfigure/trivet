@@ -119,10 +119,14 @@ code may throw an exception class which is not present on the client classpath, 
 within an exception cause chain. This cannot be deserialized on the client.
 
 Trivet crudely works around this problem by modifying the deserialization process slightly. When a class whose name
-ends with "Exception" is missing from the client classpath, Trivet replaces the exception class with ServerSideException
+ends with "Exception" is missing from the client classpath, Trivet replaces the exception class with `MysteryException`
 and deserializes that normally. The stacktrace, cause chain, and message are preserved but the name of the original exception
 class and any custom fields are lost. This is not ideal but you can usually figure out what's going on from the information
 provided, and it's better than getting an opaque ClassNotFoundException.
+
+When an exception is thrown during a remote call, the exception (possibly mysterious) is serialized back to the client
+stub. The client stub then throws `com.voodoodyne.trivet.RemoteException`, wrapping the exception thrown on the server side.
+If you need to inspect the server side exception, inspect the cause.
 
 ## `Optional`s
 

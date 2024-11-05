@@ -79,7 +79,7 @@ public class Client<T> implements InvocationHandler {
 		final Response response = OptionalHack.restore(responseWithoutOptionals, method);
 
 		if (response.isThrown()) {
-			throw response.throwable();
+			throw new RemoteException(response.throwable());
 		} else {
 			return response.result();
 		}

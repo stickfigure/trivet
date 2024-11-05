@@ -26,7 +26,7 @@ public class ExceptionalObjectInputStream extends ObjectInputStream {
 
 	private static final Logger log = Logger.getLogger(ExceptionalObjectInputStream.class.getName());
 
-	private static final ObjectStreamClass SUBSTITUTE_EXCEPTION = ObjectStreamClass.lookup(ServerSideException.class);
+	private static final ObjectStreamClass SUBSTITUTE_EXCEPTION = ObjectStreamClass.lookup(MysteryException.class);
 
 	/** */
 	public ExceptionalObjectInputStream(final InputStream in) throws IOException {

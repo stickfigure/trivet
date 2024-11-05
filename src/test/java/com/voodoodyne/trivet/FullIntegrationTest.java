@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchException;
 
 public class FullIntegrationTest {
 	private Server server;
@@ -85,8 +87,16 @@ public class FullIntegrationTest {
 		final Optional<String> greetingNo = client.hiMaybe(Optional.empty());
 		assertThat(greetingNo).isEmpty();
 
-		assertThatNullPointerException().isThrownBy(() -> client.throwup());
-		assertThatNullPointerException().isThrownBy(() -> client.hiMaybe(null));
-		assertThatNullPointerException().isThrownBy(() -> client.badReturnsNull());
+		// Good question about whether this should just be a NPE.
+		assertThatThrownBy(() -> client.badReturnsNull())
+			.isInstanceOf(RemoteException.class)
+			.hasCauseInstanceOf(NullPointerException.class);
+
+		assertThatThrownBy(() -> client.hiMaybe(null))
+			.isInstanceOf(NullPointerException.class);
+
+		assertThatThrownBy(() -> client.throwup())
+			.isInstanceOf(RemoteException.class)
+			.hasCauseInstanceOf(NullPointerException.class);
 	}
 }
