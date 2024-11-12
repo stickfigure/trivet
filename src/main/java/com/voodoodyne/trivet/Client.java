@@ -59,7 +59,7 @@ public class Client<T> implements InvocationHandler {
 		final byte[] reqBytes = serializeRequest(req);
 
 		final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(endpoint.uri())
-				.header("Content-Type", TrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT)
+				.header("Content-Type", AbstractTrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT)
 				.POST(BodyPublishers.ofByteArray(reqBytes));
 		endpoint.requestMunger().accept(httpRequestBuilder);
 		final HttpRequest httpRequest = httpRequestBuilder.build();

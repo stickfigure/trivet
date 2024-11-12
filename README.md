@@ -23,7 +23,7 @@ This plugin is available in Maven Central:
 <dependency>
     <groupId>com.voodoodyne.trivet</groupId>
     <artifactId>trivet</artifactId>
-    <version>2.1.2</version>
+    <version>2.3</version>
 </dependency>
 ```
 
@@ -51,16 +51,16 @@ public class HelloImpl implements Hello {
 }
 ```
 
-That's really all you need to create for each service. The rest is boilerplate setup. Derive your own invoker servlet that hooks up your dependency injection system; this example uses Guice:
+That's really all you need to create for each service. The rest is boilerplate setup. Create an invoker servlet that
+hooks up your dependency injection system; this example uses Guice. You can also look at `AbstractTrivetServlet` if you want
+more control.
 
 ```java
 @Singleton
 public class GuiceTrivetServlet extends TrivetServlet {
-    @Inject Injector injector;
-
-    @Override
-    public Object getInstance(Class<?> clazz) {
-        return injector.getInstance(clazz);
+    @Inject
+    public GuiceTrivetServlet(final Injector injector) {
+        super(injector::getInstance);
     }
 }
 ```
@@ -101,9 +101,9 @@ in a custom endpoint:
 
 ```java
 Endpoint<Hello> endpoint = new Endpoint<Hello>(
-        new URI("http://example.com/rpc"),
-        Hello.class,
-        requestBuilder -> requestBuilder.header("Authentication", someBearerToken)
+    new URI("http://example.com/rpc"),
+    Hello.class,
+    requestBuilder -> requestBuilder.header("Authentication", someBearerToken)
 );
 Hello hello = Client.create(endpoint);
 hello.hi();

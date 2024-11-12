@@ -10,9 +10,7 @@ import java.io.Serial;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchException;
 
 public class FullIntegrationTest {
 	private Server server;
@@ -47,7 +45,7 @@ public class FullIntegrationTest {
 		}
 	}
 
-	public static class ServerServlet extends TrivetServlet {
+	public static class ServerServlet extends AbstractTrivetServlet {
 		@Serial
 		private static final long serialVersionUID = 1L;
 

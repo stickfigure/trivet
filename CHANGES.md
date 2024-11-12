@@ -1,5 +1,9 @@
 # Release Notes
 
+## v2.3
+2024-11-12
+* Separate TrivetServlet and AbstractTrivetServlet. Allows us to create a TrivetServlet without subclassing.
+
 ## v2.2
 2024-11-05
 * Wrap server side exceptions in `RemoteException`. Otherwise you miss out on the entire client side stacktrace.
