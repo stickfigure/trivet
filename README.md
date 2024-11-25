@@ -92,20 +92,23 @@ public class GuiceConfig extends GuiceServletContextListener {
 Finally, package up Hello.class into your client jar and in your client call this:
 
 ```java
-Hello hello = Client.create("http://example.com/rpc", Hello.class);
+ClientFactory factory = new ClientFactory("http://example.com/rpc");
+Hello hello = factory.create(Hello.class);
 hello.hi();
 ```
 
-The proxy is thread-safe and uses `java.net.http`. You can customize the behavior (add auth, proxies, etc) by passing
-in a custom endpoint:
+The proxy is thread-safe and by default uses `java.net.http`. The `ClientFactory` has a constructor that lets you
+customize the request or use alternative transports (okhttp, apache, etc):
 
 ```java
-Endpoint<Hello> endpoint = new Endpoint<Hello>(
-    new URI("http://example.com/rpc"),
-    Hello.class,
-    requestBuilder -> requestBuilder.header("Authentication", someBearerToken)
-);
-Hello hello = Client.create(endpoint);
+
+Endpoint endpoint = new JavaHttpEndpoint("http://example.com/rpc") {
+	protected void munge(HttpRequest.Builder builder) {
+		builder.header("Authentication", someBearerToken);
+    }
+};
+ClientFactory factory = new ClientFactory(endpoint);
+Hello hello = factory.create(Hello.class);
 hello.hi();
 ```
 

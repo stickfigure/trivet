@@ -9,43 +9,37 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 
 
 /**
- * Create a proxy to the server.
+ * A proxy to the server. There are convenience methods here to create a client,
+ * but you should probably use the {@code ClientFactory} instead.
  */
 public class Client<T> implements InvocationHandler {
 
-	/** */
+	/**
+	 * Convenience method, same as {@code new ClientFactory(endpoint).create(iface)}.
+	 * This method isn't deprecated, but might be in the future.
+	 */
 	public static <T> T create(final String endpoint, final Class<T> iface) {
-		try {
-			return create(new URI(endpoint), iface);
-		} catch (final URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		}
+		return new ClientFactory(endpoint).create(iface);
 	}
 
-	/** */
+	/**
+	 * Convenience method, same as {@code new ClientFactory(endpoint).create(iface)}.
+	 * This method isn't deprecated, but might be in the future.
+	 */
 	public static <T> T create(final URI endpoint, final Class<T> iface) {
-		return create(new Endpoint<>(endpoint, iface));
+		return new ClientFactory(endpoint).create(iface);
 	}
 
-	/** */
-	@SuppressWarnings("unchecked")
-	public static <T> T create(final Endpoint<T> endpoint) {
-		return (T)Proxy.newProxyInstance(endpoint.iface().getClassLoader(), new Class[] { endpoint.iface() }, new Client<>(endpoint));
-	}
-
-	private final Endpoint<T> endpoint;
+	private final Endpoint transport;
+	private final Class<T> iface;
 
 	/** */
-	public Client(final Endpoint<T> endpoint) {
-		this.endpoint = endpoint;
+	Client(final Endpoint transport, final Class<T> iface) {
+		this.transport = transport;
+		this.iface = iface;
 	}
 
 	@Override
@@ -58,23 +52,9 @@ public class Client<T> implements InvocationHandler {
 
 		final byte[] reqBytes = serializeRequest(req);
 
-		final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(endpoint.uri())
-				.header("Content-Type", AbstractTrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT)
-				.POST(BodyPublishers.ofByteArray(reqBytes));
-		endpoint.requestMunger().accept(httpRequestBuilder);
-		final HttpRequest httpRequest = httpRequestBuilder.build();
+		final InputStream responseBody = transport.post(AbstractTrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT, reqBytes, iface);
 
-		final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder();
-		endpoint.clientMunger().accept(httpClientBuilder);
-		final HttpClient httpClient = httpClientBuilder.build();
-
-		final HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest, BodyHandlers.ofInputStream());
-
-		if (httpResponse.statusCode() != 200) {
-			throw new IllegalStateException("HTTP response code " + httpResponse.statusCode() + " from server at " + endpoint);
-		}
-
-		final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(httpResponse.body());
+		final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(responseBody);
 		final Response responseWithoutOptionals = (Response)inStream.readObject();
 		final Response response = OptionalHack.restore(responseWithoutOptionals, method);
 

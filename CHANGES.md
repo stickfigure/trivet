@@ -1,5 +1,19 @@
 # Release Notes
 
+## v3.0b1
+* New way of creating clients that allows configurable transports (java.net.http, okhttp, apache, etc). 
+
+Most of the `Client.create()` methods have been preserved for convenience, but the preferred API looks like:
+
+```java
+// Uses the JavaHttpEndpoint by default
+final ClientFactory factory = new ClientFactory("https://example.com/rpc");
+final MyInterface my = factory.create(MyInterface.class);
+```
+
+You can also create `ClientFactory` with alternative implementations of `Endpoint`, which may (for example) use
+different transport mechanisms. See the javadocs or look at the code, it's simple.
+
 ## v2.3
 2024-11-12
 * Separate TrivetServlet and AbstractTrivetServlet. Allows us to create a TrivetServlet without subclassing.
