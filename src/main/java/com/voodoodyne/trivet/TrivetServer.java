@@ -1,40 +1,45 @@
 package com.voodoodyne.trivet;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serial;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 /**
- * Subclasses must implement the ability to get instances of the specified interface.
+ * The main engine for processing trivet requests. Suitable for use in a servlet
+ * or web controller. You can subclass this if you want special permission behavior.
  */
-abstract public class AbstractTrivetServlet extends HttpServlet {
-	private static final Logger log = LoggerFactory.getLogger(AbstractTrivetServlet.class);
+public class TrivetServer {
+	private static final Logger log = LoggerFactory.getLogger(TrivetServer.class);
 
-	@Serial
-	private static final long serialVersionUID = 1L;
+	/** This is how we get an instance of the interface, likely through injection */
+	private final Function<Class<?>, Object> instanceMapper;
 
-	/** The mime type expected and sent back */
-    public static final String APPLICATION_JAVA_SERIALIZED_OBJECT = "application/x-java-serialized-object";
+	/**
+	 * @param instanceMapper should be something like guice's Injector::getInstance or
+	 *                       spring's ApplicationContext::getBean. Maps a remote interface
+	 *                       to a local implementation via whatever mechanism you choose.
+	 *                       Write it by hand if you like.
+	 */
+	public TrivetServer(final Function<Class<?>, Object> instanceMapper) {
+		this.instanceMapper = instanceMapper;
+	}
 
-    /** */
-	@Override
-	protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-
-		if (!APPLICATION_JAVA_SERIALIZED_OBJECT.equals(req.getContentType()))
-			throw new ServletException("Content-Type must be " + APPLICATION_JAVA_SERIALIZED_OBJECT);
-
+	/**
+	 * Execute, reading a request off the input and writing the response to output.
+	 * @param input will contain a serialized Request object
+	 * @param output will have a serialized Response object written to it
+	 */
+	public void execute(final InputStream input, final OutputStream output) throws IOException {
 		try {
-			final Request requestWithoutOptionals = (Request)new ObjectInputStream(req.getInputStream()).readObject();
+			final Request requestWithoutOptionals = (Request)new ObjectInputStream(input).readObject();
 			final Request request = OptionalHack.restore(requestWithoutOptionals);
 			log.debug("Invoking request: {}", request);
 
@@ -42,15 +47,13 @@ abstract public class AbstractTrivetServlet extends HttpServlet {
 			log.debug("Returning response: {}", responseWithOptionals);
 			final Response response = OptionalHack.strip(responseWithOptionals, request.method().method());
 
-			resp.setContentType(APPLICATION_JAVA_SERIALIZED_OBJECT);
-			final ObjectOutputStream out = new ObjectOutputStream(resp.getOutputStream());
+			final ObjectOutputStream out = new ObjectOutputStream(output);
 			out.writeObject(response);
 			out.close();
 
 		} catch (final ClassNotFoundException | NoSuchMethodException ex) {
-			throw new ServletException(ex);
+			throw new RuntimeException(ex);
 		}
-
 	}
 
 	/**
@@ -78,7 +81,7 @@ abstract public class AbstractTrivetServlet extends HttpServlet {
 		if (!iface.isInterface())
 			throw new IllegalArgumentException("Requests must be methods on interfaces; '" + iface.getName() + "' is not an interface");
 
-		final Object service = getInstance(iface);
+		final Object service = instanceMapper.apply(iface);
 
 		checkAllowed(service, request.method());
 
@@ -120,7 +123,4 @@ abstract public class AbstractTrivetServlet extends HttpServlet {
 
 		return false;
 	}
-
-	/** Subclasses should implement this to get an instance of the interface, likely through injection */
-	abstract public Object getInstance(Class<?> iface);
 }

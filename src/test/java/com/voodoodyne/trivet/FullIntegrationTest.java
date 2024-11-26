@@ -45,14 +45,15 @@ public class FullIntegrationTest {
 		}
 	}
 
-	public static class ServerServlet extends AbstractTrivetServlet {
+	public static class ServerServlet extends TrivetServlet {
 		@Serial
 		private static final long serialVersionUID = 1L;
 
-		@Override
-		public Object getInstance(final Class<?> iface) {
-			assert iface == Hello.class;
-			return new HelloImpl();
+		public ServerServlet() {
+			super(iface -> {
+				assert iface == Hello.class;
+				return new HelloImpl();
+			});
 		}
 	}
 

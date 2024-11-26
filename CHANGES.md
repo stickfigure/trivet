@@ -1,6 +1,14 @@
 # Release Notes
 
+## v3.0b2
+2024-11-26
+* Separated the `TrivetServer` from the `TrivetServlet` so that trivet can be used in spring web controllers
+or other contexts where an old-school java servlet is undesirable.
+* Moved the constant for the java serialized object mime type to `Client`.
+* Removed the `AbstractTrivetServlet`.
+
 ## v3.0b1
+2024-11-25
 * New way of creating clients that allows configurable transports (java.net.http, okhttp, apache, etc). 
 
 Most of the `Client.create()` methods have been preserved for convenience, but the preferred API looks like:

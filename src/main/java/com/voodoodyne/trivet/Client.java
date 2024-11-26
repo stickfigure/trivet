@@ -6,9 +6,7 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 
 /**
@@ -16,6 +14,9 @@ import java.net.URISyntaxException;
  * but you should probably use the {@code ClientFactory} instead.
  */
 public class Client<T> implements InvocationHandler {
+
+	/** The mime type expected for both directions of client/server communication */
+    public static final String APPLICATION_JAVA_SERIALIZED_OBJECT = "application/x-java-serialized-object";
 
 	/**
 	 * Convenience method, same as {@code new ClientFactory(endpoint).create(iface)}.
@@ -52,7 +53,7 @@ public class Client<T> implements InvocationHandler {
 
 		final byte[] reqBytes = serializeRequest(req);
 
-		final InputStream responseBody = transport.post(AbstractTrivetServlet.APPLICATION_JAVA_SERIALIZED_OBJECT, reqBytes, iface);
+		final InputStream responseBody = transport.post(APPLICATION_JAVA_SERIALIZED_OBJECT, reqBytes, iface);
 
 		final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(responseBody);
 		final Response responseWithoutOptionals = (Response)inStream.readObject();

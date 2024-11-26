@@ -52,7 +52,7 @@ public class HelloImpl implements Hello {
 ```
 
 That's really all you need to create for each service. The rest is boilerplate setup. Create an invoker servlet that
-hooks up your dependency injection system; this example uses Guice. You can also look at `AbstractTrivetServlet` if you want
+hooks up your dependency injection system; this example uses Guice. You can also look at `TrivetServer` if you want
 more control.
 
 ```java
