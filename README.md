@@ -9,7 +9,7 @@ your call into a Request object and posts that to a servlet which sends back a s
 
  * v1.0 uses `javax.*`
  * v1.1+ uses `jakarta.*`
- * v2.0+ changes the serialization format, using java `record`.
+ * v2.0+ changes the serialization format, using java `record`. Requires Java17+.
 
 ## Source code
 
