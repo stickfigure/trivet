@@ -2,7 +2,7 @@
 
 ## v3.0
 2024-12-02
-* No changes, just declaring it stable.
+* No changes, just declaring it stable. Note that v3 is wire-compatible with v2.
 
 ## v3.0b2
 2024-11-26
