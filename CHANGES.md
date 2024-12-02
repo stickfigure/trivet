@@ -1,5 +1,9 @@
 # Release Notes
 
+## v3.0
+2024-12-02
+* No changes, just declaring it stable.
+
 ## v3.0b2
 2024-11-26
 * Separated the `TrivetServer` from the `TrivetServlet` so that trivet can be used in spring web controllers
