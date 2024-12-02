@@ -4,12 +4,12 @@ This is the simplest possible Java RPC protocol, utilizing serialization and HTT
 uses dependency injection to bind the interface to a concrete implementation on the server; you can use Guice,
 CDI, or even just wire it up by hand.
 
-The implementation is just 9 source files and 250 lines of code, with no dependency jars. A dynamic proxy serializes
+The implementation is just 14 source files and 400 lines of code, with no dependency jars. A dynamic proxy serializes
 your call into a Request object and posts that to a servlet which sends back a serialized Response. Easy!
 
  * v1.0 uses `javax.*`
  * v1.1+ uses `jakarta.*`
- * v2.0+ changes the serialization format, using java `record`. The client is now based on `java.net.http`.  
+ * v2.0+ changes the serialization format, using java `record`. The client is now based on `java.net.http`.
 
 ## Source code
 
@@ -23,7 +23,7 @@ This plugin is available in Maven Central:
 <dependency>
     <groupId>com.voodoodyne.trivet</groupId>
     <artifactId>trivet</artifactId>
-    <version>2.3</version>
+    <version>3.0</version>
 </dependency>
 ```
 
