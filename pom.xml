@@ -9,7 +9,7 @@
 
 	<groupId>com.voodoodyne.trivet</groupId>
 	<artifactId>trivet</artifactId>
-	<version>3.0</version>
+	<version>3.0.1-SNAPSHOT</version>
 
 	<name>Trivet</name>
 	<description>A trivial remoting protocol based on Java serialization and HTTP.</description>
@@ -19,7 +19,7 @@
 	<scm>
 		<url>scm:git:https://github.com/stickfigure/trivet.git</url>
 		<developerConnection>scm:git:git@github.com:stickfigure/trivet.git</developerConnection>
-		<tag>trivet-3.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<licenses>
