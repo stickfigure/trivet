@@ -1,5 +1,10 @@
 # Release Notes
 
+## v3.0.1
+2025-01-28
+* Throw an exception if you try to pass a non-interface class to `Client`.
+* Don't proxy Object methods like `toString()` across the wire.
+
 ## v3.0
 2024-12-02
 * No changes, just declaring it stable. Note that v3 is wire-compatible with v2.
