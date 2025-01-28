@@ -22,6 +22,11 @@ public class JavaHttpEndpoint implements Endpoint {
 	}
 
 	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "(" + endpoint + ")";
+	}
+
+	@Override
 	public InputStream post(final String contentType, final byte[] body, final Class<?> iface) throws IOException {
 
 		final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder(endpoint)

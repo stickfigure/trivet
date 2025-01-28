@@ -34,17 +34,31 @@ public class Client<T> implements InvocationHandler {
 		return new ClientFactory(endpoint).create(iface);
 	}
 
-	private final Endpoint transport;
+	private final Endpoint endpoint;
 	private final Class<T> iface;
 
 	/** */
-	Client(final Endpoint transport, final Class<T> iface) {
-		this.transport = transport;
+	Client(final Endpoint endpoint, final Class<T> iface) {
+		this.endpoint = endpoint;
 		this.iface = iface;
+
+		if (!iface.isInterface()) {
+			throw new IllegalArgumentException("iface must be an interface, not a concrete class");
+		}
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "(" + endpoint + ", " + iface + ")";
 	}
 
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+
+		// Don't proxy method calls on Object methods
+		if (method.getDeclaringClass() == Object.class) {
+			return method.invoke(this, args);
+		}
 
 		final MethodDef def = new MethodDef(method);
 
@@ -53,7 +67,7 @@ public class Client<T> implements InvocationHandler {
 
 		final byte[] reqBytes = serializeRequest(req);
 
-		final InputStream responseBody = transport.post(APPLICATION_JAVA_SERIALIZED_OBJECT, reqBytes, iface);
+		final InputStream responseBody = endpoint.post(APPLICATION_JAVA_SERIALIZED_OBJECT, reqBytes, iface);
 
 		final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(responseBody);
 		final Response responseWithoutOptionals = (Response)inStream.readObject();
