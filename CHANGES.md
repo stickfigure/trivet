@@ -1,5 +1,9 @@
 # Release Notes
 
+## v3.0.2
+2025-09-15
+* Address memory leaks from unclosed streams.
+
 ## v3.0.1
 2025-01-28
 * Throw an exception if you try to pass a non-interface class to `Client`.
