@@ -68,15 +68,15 @@ public class Client<T> implements InvocationHandler {
 		final byte[] reqBytes = serializeRequest(req);
 
 		final InputStream responseBody = endpoint.post(APPLICATION_JAVA_SERIALIZED_OBJECT, reqBytes, iface);
+		try (final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(responseBody)) {
+			final Response responseWithoutOptionals = (Response) inStream.readObject();
+			final Response response = OptionalHack.restore(responseWithoutOptionals, method);
 
-		final ExceptionalObjectInputStream inStream = new ExceptionalObjectInputStream(responseBody);
-		final Response responseWithoutOptionals = (Response)inStream.readObject();
-		final Response response = OptionalHack.restore(responseWithoutOptionals, method);
-
-		if (response.isThrown()) {
-			throw new RemoteException(response.throwable());
-		} else {
-			return response.result();
+			if (response.isThrown()) {
+				throw new RemoteException(response.throwable());
+			} else {
+				return response.result();
+			}
 		}
 	}
 

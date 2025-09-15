@@ -1,6 +1,8 @@
 package com.voodoodyne.trivet;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,6 +46,11 @@ public class TrivetServlet extends HttpServlet {
 
 		resp.setContentType(Client.APPLICATION_JAVA_SERIALIZED_OBJECT);
 
-		trivetServer.execute(req.getInputStream(), resp.getOutputStream());
+		try (
+			final ServletInputStream inputStream = req.getInputStream();
+			final ServletOutputStream outputStream = resp.getOutputStream()
+		) {
+			trivetServer.execute(inputStream, outputStream);
+		}
 	}
 }
