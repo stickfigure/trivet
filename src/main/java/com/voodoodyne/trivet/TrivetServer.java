@@ -47,9 +47,10 @@ public class TrivetServer {
 			log.debug("Returning response: {}", responseWithOptionals);
 			final Response response = OptionalHack.strip(responseWithOptionals, request.method().method());
 
-			try (final ObjectOutputStream out = new ObjectOutputStream(output)) {
-				out.writeObject(response);
-			}
+			final ObjectOutputStream out = new ObjectOutputStream(output);
+			out.writeObject(response);
+
+			// Let the caller close the streams, it created them
 		} catch (final ClassNotFoundException | NoSuchMethodException ex) {
 			throw new RuntimeException(ex);
 		}
