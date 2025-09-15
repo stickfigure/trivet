@@ -1,5 +1,9 @@
 # Release Notes
 
+## v3.0.3
+2025-09-15
+* Minor tweak to stream handling for consistency; that shouldn't affect anyone.
+
 ## v3.0.2
 2025-09-15
 * Address memory leaks from unclosed streams.
