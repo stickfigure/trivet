@@ -5,13 +5,12 @@ import java.io.Serial;
 
 /**
  * This exception class is used as a replacement for sever-side exceptions that do not exist on the client.
- * Unfortunately this destroys information (the actual exception type) and there is no reasonable way to recover
- * it. It gets logged on the client.
+ * To make the serialization magic work, this is subclassed at runtime for every missing class. The subclass
+ * has the same name as the missing class so the stacktrace looks magically correct.
  */
 public class MysteryException extends RuntimeException {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	/** You cannot instantiate these; they are deserialized by the ExceptionSafeObjectInputStream */
-	private MysteryException() {}
+	public MysteryException() {}
 }
