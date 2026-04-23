@@ -1,5 +1,9 @@
 # Release Notes
 
+## v3.0.4
+2026-04-23
+* Significantly improve client behavior when working with exceptions which are missing from the classpath.
+
 ## v3.0.3
 2025-09-15
 * Minor tweak to stream handling for consistency; shouldn't affect anyone.
