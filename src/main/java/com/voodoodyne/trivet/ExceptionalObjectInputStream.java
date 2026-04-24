@@ -42,15 +42,4 @@ public class ExceptionalObjectInputStream extends ObjectInputStream {
 		return desc.getName().endsWith("Exception") || desc.getName().endsWith("Error") || desc.getName().endsWith("Throwable");
 	}
 
-//	@Override
-//	protected Object resolveObject(final Object obj) throws IOException {
-//		if (obj instanceof MysteryException mystery) {
-//			final String originalName = mysteryClassesOriginalName.get(obj.getClass());
-//			if (originalName != null) {
-//				mystery.setOriginalClassName(originalName);
-//			}
-//		}
-//
-//		return super.resolveObject(obj);
-//	}
 }
