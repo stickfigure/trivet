@@ -19,9 +19,21 @@ class MysteryExceptionTest {
 		void hi();
 	}
 
-//	static class HiddenException extends RuntimeException {
+//	static class HiddenBaseException extends RuntimeException {
 //		@Serial
 //		private static final long serialVersionUID = 1L;
+//
+//		private final String baseExtra;
+//
+//		public HiddenBaseException(final String msg, final Throwable cause) {
+//			super(msg, cause);
+//			this.baseExtra = "base extra";
+//		}
+//	}
+//
+//	static class HiddenException extends HiddenBaseException {
+//		@Serial
+//		private static final long serialVersionUID = 2L;
 //
 //		public final String extra;
 //
@@ -73,5 +85,6 @@ class MysteryExceptionTest {
 		final Throwable sourceCause = mysteryCause.getCause();
 		assertThat(sourceCause).isInstanceOf(IllegalArgumentException.class);
 		assertThat(sourceCause).hasMessage("I am illegal argument");
+		assertThat(sourceCause).hasNoCause();
 	}
 }
