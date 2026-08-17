@@ -1,5 +1,13 @@
 # Release Notes
 
+## v3.0.6
+2026-08-16
+* Fix thread churn issue when using JavaHttpEndpoint.
+
+## v3.0.5
+2026-04-27
+* Fix some edge cases when working with exceptions which are missing from the classpath.
+
 ## v3.0.4
 2026-04-23
 * Significantly improve client behavior when working with exceptions which are missing from the classpath.
