@@ -11,14 +11,20 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 /**
  * An endpoint implementation that uses the java.net.http facility introduced
- * with Java 11. You can subclass this if you want to munge the request
- * or client builders (add proxies, timeouts, etc).
+ * with Java 11. You can subclass this to customize request builders, or supply
+ * a configured HttpClient to customize proxies, timeouts, and other client behavior.
  */
 public class JavaHttpEndpoint implements Endpoint {
 	private final URI endpoint;
+	private final HttpClient httpClient;
 
 	public JavaHttpEndpoint(final URI endpoint) {
+		this(endpoint, HttpClient.newHttpClient());
+	}
+
+	public JavaHttpEndpoint(final URI endpoint, final HttpClient httpClient) {
 		this.endpoint = endpoint;
+		this.httpClient = httpClient;
 	}
 
 	@Override
@@ -34,10 +40,6 @@ public class JavaHttpEndpoint implements Endpoint {
 			.POST(BodyPublishers.ofByteArray(body));
 		this.munge(httpRequestBuilder, iface);
 		final HttpRequest httpRequest = httpRequestBuilder.build();
-
-		final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder();
-		this.munge(httpClientBuilder, iface);
-		final HttpClient httpClient = httpClientBuilder.build();
 
 		final HttpResponse<InputStream> httpResponse;
 		try {
@@ -57,11 +59,5 @@ public class JavaHttpEndpoint implements Endpoint {
 	 * Override this if you wish to customize the request builder
 	 */
 	protected void munge(final HttpRequest.Builder builder, final Class<?> iface) {
-	}
-
-	/**
-	 * Override this if you wish to customize the client builder
-	 */
-	protected void munge(final HttpClient.Builder builder, final Class<?> iface) {
 	}
 }

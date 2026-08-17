@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serial;
+import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,5 +99,19 @@ public class FullIntegrationTest {
 		assertThatThrownBy(() -> client.throwup())
 			.isInstanceOf(RemoteException.class)
 			.hasCauseInstanceOf(NullPointerException.class);
+	}
+
+	@Test
+	void acceptsProvidedHttpClient() throws Exception {
+		final HttpClient httpClient = HttpClient.newBuilder()
+			.followRedirects(HttpClient.Redirect.ALWAYS)
+			.build();
+		final JavaHttpEndpoint endpoint = new JavaHttpEndpoint(
+			URI.create("http://localhost:7778/hello"),
+			httpClient);
+		final Hello client = new ClientFactory(endpoint).create(Hello.class);
+
+		assertThat(client.hi("Alice")).isEqualTo("Hi, Alice");
+		assertThat(client.hi("Bob")).isEqualTo("Hi, Bob");
 	}
 }
